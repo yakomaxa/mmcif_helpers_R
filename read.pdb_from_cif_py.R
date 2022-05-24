@@ -17,13 +17,21 @@ read.pdb_from_cif_py <- function(cif_path=NULL,
   # type eleno elety  alt resid chain resno insert     x       y      z o     b
   # segid elesy charge
   n_atom = length(cif_out[[1]]$`_atom_site`$group_PDB)
+  
+  
+  resno_tmp=as.character(cif_out[[1]]$`_atom_site`$label_seq_id)
+  if (length(which(resno_tmp=="."))>=0){
+    resno_tmp[which(resno_tmp==".")]=0
+    cat(paste0("Undefined residue index found: replacing '.' by 0 \n"))
+  }
+  
   atom=data.frame(type=as.character(cif_out[[1]]$`_atom_site`$group_PDB),
                   eleno=as.numeric(cif_out[[1]]$`_atom_site`$id),
                   elety=as.character(cif_out[[1]]$`_atom_site`$label_atom_id),
                   alt=as.character(cif_out[[1]]$`_atom_site`$label_alt_id),
                   resid=as.character(cif_out[[1]]$`_atom_site`$label_comp_id),
                   chain=as.character(cif_out[[1]]$`_atom_site`$label_asym_id),
-                  resno=as.numeric(cif_out[[1]]$`_atom_site`$label_seq_id),
+                  resno=as.numeric(resno_tmp),
                   insert=as.character(cif_out[[1]]$`_atom_site`$pdbx_PDB_ins_code),
                   x=as.numeric(cif_out[[1]]$`_atom_site`$Cartn_x),
                   y=as.numeric(cif_out[[1]]$`_atom_site`$Cartn_y),
@@ -60,9 +68,6 @@ read.pdb_from_cif_py <- function(cif_path=NULL,
   pdb$call = cl
   
   
-  
-  
-  
   pdb_new=pdb
   if (use_youngest_alt){
     resnos=unique(pdb$atom$resno[which(!is.na(pdb$atom$alt))])
@@ -71,7 +76,7 @@ read.pdb_from_cif_py <- function(cif_path=NULL,
       for (resno in resnos){
         ind_resno=which(pdb$atom$resno==resno)
         youngest_alt=na.omit(unique(pdb$atom$alt[ind_resno]))[1]
-        print(paste0("Using the youngest alt=",youngest_alt," for resno=",resno))
+        cat(paste0("Using the youngest alt=",youngest_alt," for resno=",resno,"\n"))
         ind_resno_youngest_alt=unique(which( ( is.na(pdb$atom$alt)| pdb$atom$alt==youngest_alt )& pdb$atom$resno==resno))
         indexes=c(indexes,ind_resno_youngest_alt)
       }
