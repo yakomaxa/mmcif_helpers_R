@@ -1,7 +1,7 @@
 require(reticulate)
 read.pdb_from_cif_py <- function(cif_path=NULL,
                         use_youngest_alt=TRUE,
-                        python_path="/Users/sakuma/PycharmProjects/mmcif/venv/bin/python3.8"){
+                        python_path=""){
   use_python(python = python_path)
   pdbecif=import("pdbecif")
   reader=pdbecif$mmcif_io$CifFileReader()
